@@ -1,12 +1,15 @@
-#ifndef HMAP_H_INCLUDED
-#define HMAP_H_INCLUDED
+//this file contains declarations of hash map methods
+
+#pragma once
+
+//====================
+// INCLUDES
 
 #include "box.h"
 
-// constants
+//====================
+// METHODS DECLARATION
 
-Box *hmap_create();
-void *hmap_destroy(Box *obj);
+Box* hmap_create();
+void* hmap_destroy(Box* obj);
 // ...
-
-#endif

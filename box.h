@@ -1,10 +1,12 @@
-#ifndef BOX_H_INCLUDED
-#define BOX_H_INCLUDED
+// this file contains meta-structure implementation, which is
+// simply called Box
 
-struct _Box
-{
+#pragma once
+
+//====================
+// STRUCTURES
+
+struct _Box {
     void *(*destroy)(struct _Box *obj);
 };
 typedef struct _Box Box;
-
-#endif

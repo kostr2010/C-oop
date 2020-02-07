@@ -1,13 +1,15 @@
-#ifndef TREE_H_INCLUDED
-#define TREE_H_INCLUDED
+//this file contains declarations of hash map methods
+
+#pragma once
+
+//====================
+// INCLUDES
 
 #include "box.h"
 
-// constants
+//====================
+// METHODS DECLARATION
 
-Box *tree_create();
-void *tree_destroy(Box *obj);
-void *tree_print(Box *obj);
+Box* tree_create();
+void* tree_destroy(Box* obj);
 // ...
-
-#endif
