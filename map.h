@@ -15,7 +15,7 @@ typedef struct _Pair Pair;
 struct _Map {
     void  (*destroy)(struct _Map* obj);
     int   (*insert)(struct _Map* obj, Pair* data);
-    int   (*delete)(struct _Map* obj, Pair* data);
+    int   (*delete)(struct _Map* obj, void* key);
     int   (*change)(struct _Map* obj, Pair* data);
     void* (*get)(struct _Map* obj, void* key);
 };
