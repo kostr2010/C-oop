@@ -1,5 +1,8 @@
 // doubly linked list implementation
 
+//====================
+// INCLUDES
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -12,7 +15,8 @@
 
 #include "list.h"
 
-//####################//
+//====================
+// CONSTANTS
 
 #ifdef SEC_ON
 const long CANARY = 0x1FEED5ADB16B00B5; // canary value.
@@ -36,10 +40,10 @@ const char* DLListErrDesc[] = {
     "list undeflow!\n",
     "element sequence cprrupted!\n",
     "invalid list size!\n",
-
 };
 
-//####################//
+//====================
+// FUNCTIONS IMPLEMENTATION
 
 DLList* DLListAlloc() {
     DLList* list = calloc(1, sizeof(DLList));
@@ -418,7 +422,7 @@ int DLListInsertL(DLList* list, const int addrPhysical, const data dat) {
 
     if (list->dataCur >= list->dataMax - 1)
         DLListResize(list, list->dataMax * 2);
-
+    #ifdef LOG_ON
     if (list->prev[addrPhysical] == 0 
         && (addrPhysical != list->head 
         && addrPhysical != list->tail)) {
@@ -426,6 +430,7 @@ int DLListInsertL(DLList* list, const int addrPhysical, const data dat) {
         DLListUpdLog(list, "DLListInsertL, unappropriate address to insert!");
         return -1;
     }
+    #endif
 
     int addrIns = list->free;
     int addrNewFree = list->next[list->free];
@@ -472,6 +477,7 @@ int DLListInsertR(DLList* list, const int addrPhysical, const data dat) {
     if (list->dataCur >= list->dataMax - 1)
         DLListResize(list, list->dataMax * 2);
 
+    #ifdef LOG_ON
     if (list->prev[addrPhysical] == 0 
         && (addrPhysical != list->head 
         || addrPhysical != list->tail)) {
@@ -479,6 +485,7 @@ int DLListInsertR(DLList* list, const int addrPhysical, const data dat) {
         DLListUpdLog(list, "DLListInsertR, unappropriate address to insert!");
         return -1;
     }
+    #endif
 
     int addrIns = list->free;
     int addrNewFree = list->next[addrIns];
@@ -514,9 +521,6 @@ int DLListInsertR(DLList* list, const int addrPhysical, const data dat) {
     DLListUpdLog(list, "DLListInsertR");
     #endif
 
-    //if (list->isSorted == 'n')
-    //    DLListSort(list);
-
     return addrIns;
 }
 
@@ -528,6 +532,7 @@ int DLListDelete(DLList* list, const int addrPhysical) {
         return -1;
     }
 
+    #ifdef LOG_ON
     if (list->prev[addrPhysical] == 0 
         && (addrPhysical != list->head 
         && addrPhysical != list->tail)) {
@@ -535,6 +540,7 @@ int DLListDelete(DLList* list, const int addrPhysical) {
         DLListUpdLog(list, "DLListDelete, unappropriate address to delete!");
         return -1;
     } 
+    #endif
 
     if (addrPhysical == list->head) {
         list->prev[list->next[addrPhysical]] = 0;
@@ -565,9 +571,6 @@ int DLListDelete(DLList* list, const int addrPhysical) {
 
     if (list->dataCur <= list->dataMax / 2 - DELTA)
         DLListResize(list, list->dataMax / 2); 
-
-    //if (list->isSorted == 'n')
-    //    DLListSort(list);
 
     return 0;
 }

@@ -4,6 +4,9 @@
 #define SEC_ON
 #define LOG_ON
 
+#undef SEC_ON   // switch for security measures. comment for turning on (incopatible with pairs!)
+#undef LOG_ON   // switch for logging. comment for turning on (incopatible with pairs!)
+
 #define DLLIST_INIT(list, size) DLListInit(list, #list, size)
 
 #ifdef SEC_ON
@@ -22,7 +25,13 @@
                                 }
 #endif
 
-//####################//
+//====================
+// INCLUDES
+
+#include "map.h"
+
+//====================
+// DATA STRUCTURES
 
 typedef int data;       // stack's data type.
 
@@ -76,7 +85,8 @@ struct _DLList {
 };
 typedef struct _DLList DLList;
 
-//####################//
+//====================
+// FUNCTIONS DECLARATION
 
 /**
  * @brief this function allocates memory for pointer to the DLList structure.
@@ -115,7 +125,6 @@ void DLListFree(DLList* list);
  */
 int DLListResize(DLList* list, const int sizeNew);
 
-#ifdef SEC_ON
 /**
  * @brief this function verifies list for possible errors. if any found,
  *        sets list's field err to the corresponding value, returns this value.
@@ -146,8 +155,7 @@ int DLListGetHash(DLList* list);
  * @param const char* name - name for the dump file.
  */
 void DLListDump(DLList* list, const char* name);
-#endif
-#ifdef LOG_ON
+
 /**
  * @brief this function updates list's log file.
  * @note not intended for direct user usage. 
@@ -157,7 +165,6 @@ void DLListDump(DLList* list, const char* name);
  * @param const char* func - name of hte function, where log was called.
  */
 void DLListUpdLog(DLList* list, const char* func);
-#endif
 
 /**
  * @brief this fuction gets list's current load.
