@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "list.h"
 #include "hmap.h"
@@ -18,12 +19,12 @@ const int DLLIST_INIT_SZ = 3;
 //====================
 // STRUCTURES
 
-struct _HMap {
+struct _HashMap {
     struct _Map obj;
-    void (*hash)(struct _Map *obj);
+    int (*hash)(struct _Map *obj);
     DLList* table;    
 };
-typedef struct _HMap HMap;
+typedef struct _HashMap HashMap;
 
 //====================
 // METHODS IMPLEMENTATION
@@ -33,17 +34,33 @@ int GetHashDefault(int key) {
 }
 
 Map *hmap_create(int (*hash)(int key)) {
-    Map *obj = calloc(1, sizeof(Map));
-    obj->destroy = hmap_destroy;
+    HashMap *hmap = calloc(1, sizeof(HashMap));
 
-    return obj;
+    if (hash == NULL) {
+        hmap->hash = GetHashDefault;
+    } else {
+        hmap->hash = hash;
+    }
+
+    hmap->obj.destroy = hmap_destroy;
+    hmap->obj.change = hmap_change;
+    hmap->obj.delete = hmap_delete;
+    hmap->obj.get = hmap_get;
+    hmap->obj.insert = hmap_insert;
+
+    return (Map*)hmap;
 }
 
 void hmap_destroy(Map *obj) {
-    free(obj);
+    if (obj != NULL)
+        free((HashMap*)obj);
     printf("hmap dead \n");
 }
 
-int  hmap_add(Map* obj, Pair* data);
-int  hmap_delete(Map* obj, char* key);
-int* hmap_access(Map* obj, char* key);
+int  hmap_insert(Map* obj, void* key, void* value) {
+    assert();
+}
+
+int  hmap_delete(Map* obj, void* key);
+int  hmap_change(Map* obj, void* key, void* value);
+int* hmap_get(Map* obj, char* key);
