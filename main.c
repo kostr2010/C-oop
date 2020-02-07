@@ -1,5 +1,13 @@
+// main file. here the methods will be tested
+
+//====================
+// INCLUDES
+
 #include "tree.h"
 #include "hmap.h"
+
+//====================
+// MAIN
 
 int main()
 {
