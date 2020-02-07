@@ -5,11 +5,11 @@
 //====================
 // INCLUDES
 
-#include "box.h"
+#include "map.h"
 
 //====================
 // METHODS DECLARATION
 
-Box* hmap_create();
-void* hmap_destroy(Box* obj);
+Map* hmap_create();
+void* hmap_destroy(Map* obj);
 // ...

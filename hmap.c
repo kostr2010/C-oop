@@ -12,23 +12,22 @@
 // STRUCTURES
 
 struct _HMap {
-    struct _Box obj;
+    struct _Map obj;
 
-    char *name;
 };
 typedef struct _HMap HMap;
 
 //====================
 // METHODS IMPLEMENTATION
 
-Box *hmap_create() {
-    Box *obj = calloc(1, sizeof(Box));
+Map *hmap_create() {
+    Map *obj = calloc(1, sizeof(Map));
     obj->destroy = hmap_destroy;
 
     return obj;
 }
 
-void *hmap_destroy(Box *obj) {
+void *hmap_destroy(Map *obj) {
     free(obj);
     printf("hmap dead \n");
 }

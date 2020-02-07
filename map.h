@@ -1,12 +1,12 @@
 // this file contains meta-structure implementation, which is
-// simply called Box
+// simply called Map
 
 #pragma once
 
 //====================
 // STRUCTURES
 
-struct _Box {
-    void *(*destroy)(struct _Box *obj);
+struct _Map {
+    void *(*destroy)(struct _Map *obj);
 };
-typedef struct _Box Box;
+typedef struct _Map Map;

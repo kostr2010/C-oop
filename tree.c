@@ -12,7 +12,7 @@
 // STRUCTURES
 
 struct _Tree {
-    struct _Box obj;
+    struct _Map obj;
 
     char *name;
 };
@@ -21,14 +21,14 @@ typedef struct _Tree Tree;
 //====================
 // METHODS IMPLEMENTATION
 
-Box *tree_create() {
-    Tree *tree = calloc(1, sizeof(Tree) + sizeof(Box));
+Map *tree_create() {
+    Tree *tree = calloc(1, sizeof(Tree) + sizeof(Map));
     tree->obj.destroy = tree_destroy;
 
     return tree;
 }
 
-void *tree_destroy(Box *obj) {
+void *tree_destroy(Map *obj) {
     free((Tree *)(obj));
 
     printf("tree dead \n");

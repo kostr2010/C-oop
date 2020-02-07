@@ -5,11 +5,11 @@
 //====================
 // INCLUDES
 
-#include "box.h"
+#include "map.h"
 
 //====================
 // METHODS DECLARATION
 
-Box* tree_create();
-void* tree_destroy(Box* obj);
+Map* tree_create();
+void* tree_destroy(Map* obj);
 // ...
