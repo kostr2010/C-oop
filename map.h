@@ -12,5 +12,6 @@ struct _Map {
     int   (*delete)(struct _Map* obj, void* key);
     int   (*change)(struct _Map* obj, void* key, void* newValue);
     void* (*get)(struct _Map* obj, void* key);
+    int   (*keys_compare)(void* key1, void* key2);
 };
 typedef struct _Map Map;
