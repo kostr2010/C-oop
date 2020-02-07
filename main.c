@@ -3,6 +3,9 @@
 //====================
 // INCLUDES
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "tree.h"
 #include "hmap.h"
 #include "list.h"
@@ -12,7 +15,7 @@
 
 int main()
 {
-    Map *c = hmap_create();
+    Map *c = hmap_create(NULL);
     Map *b = tree_create();
 
     c->destroy(c);

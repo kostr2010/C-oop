@@ -14,7 +14,7 @@
 // CONSTANTS
 
 const int HMAP_SZ_DEFAULT = 10;
-const int DLLIST_INIT_SZ = 3;
+const int DLLIST_INIT_SZ = 2;
 
 //====================
 // STRUCTURES
@@ -36,11 +36,10 @@ int GetHashDefault(int key) {
 Map *hmap_create(int (*hash)(int key)) {
     HashMap *hmap = calloc(1, sizeof(HashMap));
 
-    if (hash == NULL) {
+    if (hash == NULL)
         hmap->hash = GetHashDefault;
-    } else {
+    else
         hmap->hash = hash;
-    }
 
     hmap->obj.destroy = hmap_destroy;
     hmap->obj.change = hmap_change;
@@ -58,9 +57,13 @@ void hmap_destroy(Map *obj) {
 }
 
 int  hmap_insert(Map* obj, void* key, void* value) {
-    assert();
+    assert(obj);
+    assert(key);
+    assert(value);
+
+    return 0;
 }
 
 int  hmap_delete(Map* obj, void* key);
-int  hmap_change(Map* obj, void* key, void* value);
+int  hmap_change(Map* obj, void* key, void* newValue);
 int* hmap_get(Map* obj, char* key);
