@@ -102,4 +102,5 @@ int GetHashDefault(void* key);
  */
 void PrintPairDefault(void* key, void* value);
 
+// DEBUG FUNCTION
 void Print(Map* obj);

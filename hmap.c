@@ -109,6 +109,12 @@ int hmap_insert(Map* obj, void* key, void* value) {
     DLList* lst = &(((HashMap*)obj)->table[hash]);
     Pair data = {key, value};
 
+    for (int i = lst->head; i != 0; i = lst->next[i])
+        if (obj->compare_keys(key, lst->data[i].key) == 0) {
+                printf("[hmap_insert] trying to insert element with existing key. try hmap_change\n");
+                return -1;
+        } 
+
     DLListInsertR(lst, DLListGetTail(lst), data);
 
     return 0;
@@ -140,15 +146,15 @@ int hmap_change(Map* obj, void* key, void* newValue) {
     assert(newValue);
 
     int hash = ((HashMap*)obj)->hash(key);
-    DLList lst = ((HashMap*)obj)->table[hash];
+    DLList* lst = &(((HashMap*)obj)->table[hash]);
     
-    for (int i = lst.head; i != 0; i = lst.next[i])
-        if (obj->compare_keys(key, lst.data[i].key) == 0) {
-            lst.data[i].value = newValue;
+    for (int i = lst->head; i != 0; i = lst->next[i])
+        if (obj->compare_keys(key, lst->data[i].key) == 0) {
+            lst->data[i].value = newValue;
             return 0;
         }
     
-    printf("[hmap_change] no element with such key!");
+    printf("[hmap_change] no element with such key!\n");
 
     return -1;
 }
@@ -158,13 +164,13 @@ void* hmap_get(Map* obj, void* key) {
     assert(key);
 
     int hash = ((HashMap*)obj)->hash(key);
-    DLList lst = ((HashMap*)obj)->table[hash];
+    DLList* lst = &(((HashMap*)obj)->table[hash]);
     
-    for (int i = lst.head; i != 0; i = lst.next[i])
-        if (obj->compare_keys(key, lst.data[i].key) == 0)
-            return lst.data[i].value;
+    for (int i = lst->head; i != 0; i = lst->next[i])
+        if (obj->compare_keys(key, lst->data[i].key) == 0)
+            return lst->data[i].value;
 
-    printf("[hmap_get] no element with such key!");
+    printf("[hmap_get] no element with such key!\n");
 
     return NULL;
 }
