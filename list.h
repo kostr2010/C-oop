@@ -1,5 +1,4 @@
-#ifndef LIST_H_INCLUDED
-#define LIST_H_INCLUDED
+#pragma once
 
 #define SEC_ON
 #define LOG_ON
@@ -285,5 +284,3 @@ char* GetTimestamp();
  * @param const char* name - name of the .dot file. 
  */
 void DLListVis(DLList* list, const char* name);
-
-#endif
