@@ -15,12 +15,36 @@
 
 int main()
 {
-    Map *c = hmap_create(NULL);
-    Map *b = tree_create();
+    Map *c = hmap_create(NULL, NULL, NULL, NULL);
+    //Map *b = tree_create();
+
+    int val1 = 12;
+    int val2 = 13;
+    int val3 = 14;
+
+    int key1 = 21;
+    int key2 = 31;
+    int key3 = 41;
+
+    c->insert(c, &key1, &val1);
+    c->insert(c, &key1, &val1);
+    c->insert(c, &key1, &val1);
+    c->insert(c, &key1, &val1);
+    c->insert(c, &key1, &val1);
+    c->insert(c, &key1, &val1);
+    c->insert(c, &key1, &val1);
+
+    Print(c);
+
+    c->delete(c, &key1);
+
+    Print(c);
 
     c->destroy(c);
-    b->destroy(b);
+    //b->destroy(b);
 
+    
+    /*
     DLList* lst = DLListAlloc();
     DLLIST_INIT(lst, 10);
     DLListInsertL(lst, DLListGetHead(lst), 20);
@@ -36,4 +60,5 @@ int main()
     DLListSort(lst);
 
     DLListFree(lst);
+    */
 }

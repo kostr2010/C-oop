@@ -128,7 +128,7 @@ void DLListFree(DLList* list) {
 int DLListResize(DLList* list, const int sizeNew) {
     DLLIST_VERIFY(list);
     
-    if (sizeNew < DELTA) {
+    if (sizeNew < 0) {
         printf("invalid new size! %d -> %d\n", list->dataMax, sizeNew);
         return -1;
     } else if (sizeNew == list->dataMax) {
@@ -422,16 +422,17 @@ int DLListInsertL(DLList* list, const int addrPhysical, const data dat) {
 
     if (list->dataCur >= list->dataMax - 1)
         DLListResize(list, list->dataMax * 2);
-    #ifdef LOG_ON
+
     if (list->prev[addrPhysical] == 0 
         && (addrPhysical != list->head 
         && addrPhysical != list->tail)) {
         printf("unappropriate address to insert %d!\n", addrPhysical);
+        #ifdef LOG_ON
         DLListUpdLog(list, "DLListInsertL, unappropriate address to insert!");
+        #endif
         return -1;
     }
-    #endif
-
+    
     int addrIns = list->free;
     int addrNewFree = list->next[list->free];
     list->data[list->free] = dat;
@@ -477,16 +478,16 @@ int DLListInsertR(DLList* list, const int addrPhysical, const data dat) {
     if (list->dataCur >= list->dataMax - 1)
         DLListResize(list, list->dataMax * 2);
 
-    #ifdef LOG_ON
     if (list->prev[addrPhysical] == 0 
         && (addrPhysical != list->head 
         || addrPhysical != list->tail)) {
         printf("unappropriate address to insert %d!\n", addrPhysical);
+        #ifdef LOG_ON
         DLListUpdLog(list, "DLListInsertR, unappropriate address to insert!");
+        #endif
         return -1;
     }
-    #endif
-
+    
     int addrIns = list->free;
     int addrNewFree = list->next[addrIns];
     list->data[addrIns] = dat;
@@ -532,15 +533,15 @@ int DLListDelete(DLList* list, const int addrPhysical) {
         return -1;
     }
 
-    #ifdef LOG_ON
     if (list->prev[addrPhysical] == 0 
         && (addrPhysical != list->head 
         && addrPhysical != list->tail)) {
         printf("unappropriate address to delete %d %d!\n", addrPhysical, list->head);
+        #ifdef LOG_ON
         DLListUpdLog(list, "DLListDelete, unappropriate address to delete!");
+        #endif
         return -1;
-    } 
-    #endif
+    }
 
     if (addrPhysical == list->head) {
         list->prev[list->next[addrPhysical]] = 0;
@@ -580,13 +581,13 @@ int DLListFind(DLList* list, const data dat) {
     DLLIST_VERIFY(list);
 
     int addr = -1;
-
+    /* for numeric data only
     for (int i = list->head; i != 0; i = list->next[i])
         if (list->data[i] == dat) {
             addr = i;
             break;
         }
-
+    */
     DLLIST_VERIFY(list);
 
     return addr;

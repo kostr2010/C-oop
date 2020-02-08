@@ -14,32 +14,73 @@
 // CONSTANTS
 
 const int HMAP_SZ_DEFAULT = 10;
-const int DLLIST_INIT_SZ = 2;
+const int DLLIST_INIT_SZ = 1;
 
 //====================
 // STRUCTURES
 
 struct _HashMap {
     struct _Map obj;
-    int (*hash)(struct _Map *obj);
+    int (*hash)(void* key);
     DLList* table;    
+    int size;
 };
 typedef struct _HashMap HashMap;
 
 //====================
 // METHODS IMPLEMENTATION
 
-int GetHashDefault(int key) {
-    return key % 10;
+int GetHashDefault(void* key) {
+    assert(key);
+
+    return *(int*)key % 10;
 }
 
-Map *hmap_create(int (*hash)(int key)) {
+int CompareKeysDefault(void* key1, void* key2) {
+    assert(key1);
+    assert(key2);
+
+    if (*(int*)key1 == *(int*)key2)
+        return 0;
+    else if (*(int*)key1 < *(int*)key2)
+        return -1;
+    else 
+        return 1;
+}
+
+void PrintPairDefault(void* key, void* value) {
+    assert(key);
+    assert(value);
+
+    printf("\"%d\", \"%d\"", *(int*)key, *(int*)value);
+
+    return;
+}
+
+Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int* size, void (*print_pair)(void* key, void* value)) {
     HashMap *hmap = calloc(1, sizeof(HashMap));
 
-    if (hash == NULL)
+    if (hash == NULL) {
         hmap->hash = GetHashDefault;
-    else
+        hmap->size = HMAP_SZ_DEFAULT;
+    } else {
         hmap->hash = hash;
+        hmap->size = *size;
+    }
+
+    hmap->table = calloc(hmap->size, sizeof(DLList));
+    for (int i = 0; i < hmap->size; i++)
+        DLLIST_INIT(&(hmap->table[i]), DLLIST_INIT_SZ);
+
+    if (cmp == NULL)
+        hmap->obj.compare_keys = CompareKeysDefault;
+    else
+        hmap->obj.compare_keys = cmp;
+
+    if (print_pair == NULL)
+        hmap->obj.print_pair = PrintPairDefault;
+    else 
+        hmap->obj.print_pair = print_pair;
 
     hmap->obj.destroy = hmap_destroy;
     hmap->obj.change = hmap_change;
@@ -53,17 +94,93 @@ Map *hmap_create(int (*hash)(int key)) {
 void hmap_destroy(Map *obj) {
     if (obj != NULL)
         free((HashMap*)obj);
-    printf("hmap dead \n");
+
+    printf("hmap freed \n");
+
+    return;
 }
 
-int  hmap_insert(Map* obj, void* key, void* value) {
+int hmap_insert(Map* obj, void* key, void* value) {
     assert(obj);
     assert(key);
     assert(value);
 
+    int hash = ((HashMap*)obj)->hash(key);
+    DLList* lst = &(((HashMap*)obj)->table[hash]);
+    Pair data = {key, value};
+
+    DLListInsertR(lst, DLListGetTail(lst), data);
+
     return 0;
 }
 
-int  hmap_delete(Map* obj, void* key);
-int  hmap_change(Map* obj, void* key, void* newValue);
-int* hmap_get(Map* obj, char* key);
+int hmap_delete(Map* obj, void* key) {
+    assert(obj);
+    assert(key);
+
+    int hash = ((HashMap*)obj)->hash(key);
+    DLList* lst = &(((HashMap*)obj)->table[hash]);
+    
+    for (int i = lst->head; i != 0; i = lst->next[i])
+        if (obj->compare_keys(key, lst->data[i].key) == 0) {
+            if (DLListDelete(lst, i) == -1)
+                return -1;
+            else 
+                return 0;
+        };
+
+    printf("[hmap_delete] no element with such key!\n");
+
+    return -1;
+}
+
+int hmap_change(Map* obj, void* key, void* newValue) {
+    assert(obj);
+    assert(key);
+    assert(newValue);
+
+    int hash = ((HashMap*)obj)->hash(key);
+    DLList lst = ((HashMap*)obj)->table[hash];
+    
+    for (int i = lst.head; i != 0; i = lst.next[i])
+        if (obj->compare_keys(key, lst.data[i].key) == 0) {
+            lst.data[i].value = newValue;
+            return 0;
+        }
+    
+    printf("[hmap_change] no element with such key!");
+
+    return -1;
+}
+
+void* hmap_get(Map* obj, void* key) {
+    assert(obj);
+    assert(key);
+
+    int hash = ((HashMap*)obj)->hash(key);
+    DLList lst = ((HashMap*)obj)->table[hash];
+    
+    for (int i = lst.head; i != 0; i = lst.next[i])
+        if (obj->compare_keys(key, lst.data[i].key) == 0)
+            return lst.data[i].value;
+
+    printf("[hmap_get] no element with such key!");
+
+    return NULL;
+}
+
+void Print(Map* obj) {
+    for (int i = 0; i < ((HashMap*)obj)->size; i++) {
+        DLList* lst = &(((HashMap*)obj)->table[i]);
+        printf("lst #%d: (size: %d/%d)\n", i, lst->dataCur, lst->dataMax);
+        for (int j = lst->head; j != 0; j = lst->next[j]) {
+            printf("  [%d]: ", j);
+            PrintPairDefault(lst->data[j].key, lst->data[j].value);
+            printf("\n");
+        }
+    }
+
+    printf("\n");
+
+    return;
+}

@@ -33,7 +33,13 @@
 //====================
 // DATA STRUCTURES
 
-typedef int data;       // stack's data type.
+struct _Pair {
+    void* key;
+    void* value;
+};
+typedef struct _Pair Pair;
+
+typedef Pair data;       // stack's data type.
 
 enum DLListErrs {
     OK,
