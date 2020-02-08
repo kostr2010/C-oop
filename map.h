@@ -14,5 +14,7 @@ struct _Map {
     void* (*get)(struct _Map* obj, void* key);
     int   (*compare_keys)(void* key1, void* key2);
     void  (*print_pair)(void* key, void* value);
+	void  (*free_key)(void* key);
+	void  (*free_value)(void* value);
 };
 typedef struct _Map Map;
