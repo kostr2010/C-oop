@@ -21,9 +21,13 @@ const int DLLIST_INIT_SZ = 1;
 
 struct _HashMap {
     struct _Map obj;
-    int (*hash)(void* key);
+    
     DLList* table;    
     int size;
+    
+    int (*hash)(void* key);
+    void  (*free_key)(void* key);
+	void  (*free_value)(void* value);
 };
 typedef struct _HashMap HashMap;
 
@@ -57,7 +61,15 @@ void PrintPairDefault(void* key, void* value) {
     return;
 }
 
-Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int* size, void (*print_pair)(void* key, void* value)) {
+void FreeKeyDefault(void* key) {
+    return;
+}
+
+void FreeValueDefault(void* value) {
+    return;
+}
+
+Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int* size, void (*print_pair)(void* key, void* value), void (*free_key)(void* key), void (*free_value)(void* value)) {
     HashMap *hmap = calloc(1, sizeof(HashMap));
 
     if (hash == NULL) {
@@ -68,9 +80,15 @@ Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int
         hmap->size = *size;
     }
 
-    hmap->table = calloc(hmap->size, sizeof(DLList));
-    for (int i = 0; i < hmap->size; i++)
-        DLLIST_INIT(&(hmap->table[i]), DLLIST_INIT_SZ);
+    if (free_key == NULL)
+        hmap->free_key = FreeKeyDefault;
+    else
+        hmap->free_key = free_key;
+    
+    if (free_value == NULL)
+        hmap->free_value = FreeValueDefault;
+    else 
+        hmap->free_value = free_value;
 
     if (cmp == NULL)
         hmap->obj.compare_keys = CompareKeysDefault;
@@ -81,6 +99,10 @@ Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int
         hmap->obj.print_pair = PrintPairDefault;
     else 
         hmap->obj.print_pair = print_pair;
+
+    hmap->table = calloc(hmap->size, sizeof(DLList));
+    for (int i = 0; i < hmap->size; i++)
+        DLLIST_INIT(&(hmap->table[i]), DLLIST_INIT_SZ);
 
     hmap->obj.destroy = hmap_destroy;
     hmap->obj.change = hmap_change;
