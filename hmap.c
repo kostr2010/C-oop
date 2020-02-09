@@ -25,9 +25,9 @@ struct _HashMap {
     DLList* table;    
     int size;
     
-    int (*hash)(void* key);
-    void  (*free_key)(void* key);
-	void  (*free_value)(void* value);
+    int  (*hash)(void* key);
+    void (*free_key)(void* key);
+	void (*free_value)(void* value);
 };
 typedef struct _HashMap HashMap;
 
@@ -62,10 +62,14 @@ void PrintPairDefault(void* key, void* value) {
 }
 
 void FreeKeyDefault(void* key) {
+    assert(key);
+
     return;
 }
 
 void FreeValueDefault(void* value) {
+    assert(value);
+
     return;
 }
 
@@ -114,8 +118,26 @@ Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int
 }
 
 void hmap_destroy(Map *obj) {
-    if (obj != NULL)
-        free((HashMap*)obj);
+    if (obj == NULL)
+        return;
+
+    for (int i = 0; i < ((HashMap*)obj)->size; i++) {
+        DLList* lst = &(((HashMap*)obj)->table[i]);
+
+        for (int j = lst->head; j != 0; j = lst->next[j]) {
+            ((HashMap*)obj)->free_key(lst->data[j].key);
+            ((HashMap*)obj)->free_key(lst->data[j].value);
+        }
+        
+        free(lst->data);
+
+        free(lst->next);
+
+        free(lst->prev);
+    }
+
+    free(((HashMap*)obj)->table);
+    free((HashMap*)obj);
 
     printf("hmap freed \n");
 
@@ -198,6 +220,8 @@ void* hmap_get(Map* obj, void* key) {
 }
 
 void Print(Map* obj) {
+    assert(obj);
+
     for (int i = 0; i < ((HashMap*)obj)->size; i++) {
         DLList* lst = &(((HashMap*)obj)->table[i]);
         printf("lst #%d: (size: %d/%d)\n", i, lst->dataCur, lst->dataMax);

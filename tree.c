@@ -21,6 +21,9 @@ typedef struct _Node Node;
 struct _Tree{
     struct _Map obj;
     Node *root;
+
+	void (*free_key)(void* key);
+	void (*free_value)(void* value);
 };
 typedef struct _Tree Tree;
 
@@ -73,8 +76,8 @@ void destroy_node(Map *obj, Node *node){
 	assert(obj);
 	assert(node);
 
-	obj->free_key(node->key);
-	obj->free_value(node->value);
+	((Tree*)obj)->free_key(node->key);		// EDITED BY KOSTYA
+	((Tree*)obj)->free_value(node->value);	// EDITED BY KOSTYA
 	free(node);
 }
 
@@ -133,7 +136,7 @@ int tree_change(Map *obj, void *key, void *new_value){
 		return 1; //no such key in dictionary
 	}
 	else{
-		obj->free_value(change_node->value);
+		((Tree*)obj)->free_value(change_node->value);	// EDITED BY KOSTYA
 		change_node->value = new_value;
 		return 0;
 	}
@@ -220,14 +223,14 @@ void (*free_value)(void *value)){
 	tree->obj.print_pair = tree_print_pair;
 
 	if(free_key == NULL)
-		tree->obj.free_key = free_key_default;
+		tree->free_key = free_key_default;		// EDITED BY KOSTYA
 	else
-		tree->obj.free_key = free_key;
+		tree->free_key = free_key;				// EDITED BY KOSTYA
 
 	if(free_value == NULL)
-		tree->obj.free_value = free_value_default;
+		tree->free_value = free_value_default;	// EDITED BY KOSTYA
 	else
-		tree->obj.free_value = free_value;
+		tree->free_value = free_value;			// EDITED BY KOSTYA
 
     return (Map*)tree;
 }
