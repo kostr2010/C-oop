@@ -40,40 +40,33 @@ int GetHashDefault(void* key) {
     return *(int*)key % 10;
 }
 
-int CompareKeysDefault(void* key1, void* key2) {
-    assert(key1);
-    assert(key2);
+int CompareDefault(void* arg1, void* arg2) {
+    assert(arg1);
+    assert(arg2);
 
-    if (*(int*)key1 == *(int*)key2)
+    if (*(int*)arg1 == *(int*)arg2)
         return 0;
-    else if (*(int*)key1 < *(int*)key2)
+    else if (*(int*)arg1 < *(int*)arg2)
         return -1;
     else 
         return 1;
 }
 
-void PrintPairDefault(void* key, void* value) {
-    assert(key);
-    assert(value);
+void PrintDefault(void* arg) {
+    assert(arg);
 
-    printf("\"%d\", \"%d\"", *(int*)key, *(int*)value);
-
-    return;
-}
-
-void FreeKeyDefault(void* key) {
-    assert(key);
+    printf("\"%d\"", *(int*)arg);
 
     return;
 }
 
-void FreeValueDefault(void* value) {
-    assert(value);
+void FreeDefault(void* arg) {
+    assert(arg);
 
     return;
 }
 
-Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int* size, void (*print_pair)(void* key, void* value), void (*free_key)(void* key), void (*free_value)(void* value)) {
+Map *hmap_create(int (*hash)(void* key), int (*cmp_keys)(void* key1, void* key2), int (*cmp_values)(void* value1, void* value2), int* size, void (*print_key)(void* key), void (*print_value)(void* value), void (*free_key)(void* key), void (*free_value)(void* value)) {
     HashMap *hmap = calloc(1, sizeof(HashMap));
 
     if (hash == NULL) {
@@ -85,24 +78,29 @@ Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int
     }
 
     if (free_key == NULL)
-        hmap->free_key = FreeKeyDefault;
+        hmap->free_key = FreeDefault;
     else
         hmap->free_key = free_key;
     
     if (free_value == NULL)
-        hmap->free_value = FreeValueDefault;
+        hmap->free_value = FreeDefault;
     else 
         hmap->free_value = free_value;
 
-    if (cmp == NULL)
-        hmap->obj.compare_keys = CompareKeysDefault;
+    if (cmp_keys == NULL)
+        hmap->obj.compare_keys = CompareDefault;
     else
-        hmap->obj.compare_keys = cmp;
+        hmap->obj.compare_keys = cmp_keys;
 
-    if (print_pair == NULL)
-        hmap->obj.print_pair = PrintPairDefault;
+    if (cmp_values == NULL)
+        hmap->obj.compare_keys = CompareDefault;
+    else
+        hmap->obj.compare_keys = cmp_values;
+
+    if (print_key == NULL)
+        hmap->obj.print_key = PrintDefault;
     else 
-        hmap->obj.print_pair = print_pair;
+        hmap->obj.print_key = print_key;
 
     hmap->table = calloc(hmap->size, sizeof(DLList));
     for (int i = 0; i < hmap->size; i++)
@@ -113,6 +111,7 @@ Map *hmap_create(int (*hash)(void* key), int (*cmp)(void* key1, void* key2), int
     hmap->obj.delete = hmap_delete;
     hmap->obj.get = hmap_get;
     hmap->obj.insert = hmap_insert;
+    hmap->obj.count_value = hmap_count_value;
 
     return (Map*)hmap;
 }
@@ -219,6 +218,20 @@ void* hmap_get(Map* obj, void* key) {
     return NULL;
 }
 
+int hmap_count_value(Map* obj, void* value) {
+    int count = 0;
+
+    for (int i = 0; i < ((HashMap*)obj)->size; i++) {
+        DLList* lst = &(((HashMap*)obj)->table[i]);
+
+        for (int j = lst->head; j != 0; j = lst->next[j])
+            if (CompareDefault(lst->data[j].value, value) == 0)
+                count++;
+    }
+
+    return count;
+}
+
 void Print(Map* obj) {
     assert(obj);
 
@@ -227,7 +240,9 @@ void Print(Map* obj) {
         printf("lst #%d: (size: %d/%d)\n", i, lst->dataCur, lst->dataMax);
         for (int j = lst->head; j != 0; j = lst->next[j]) {
             printf("  [%d]: ", j);
-            PrintPairDefault(lst->data[j].key, lst->data[j].value);
+            PrintDefault(lst->data[j].key);
+            printf(", ");
+            PrintDefault(lst->data[j].value);
             printf("\n");
         }
     }

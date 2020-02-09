@@ -220,7 +220,7 @@ void (*free_value)(void *value)){
 		return NULL;
 	}
 	tree->obj.compare_keys = tree_compare_keys;
-	tree->obj.print_pair = tree_print_pair;
+	//tree->obj.print_pair = tree_print_pair;	// EDITED BY KOSTYA
 
 	if(free_key == NULL)
 		tree->free_key = free_key_default;		// EDITED BY KOSTYA

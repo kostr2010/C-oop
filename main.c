@@ -17,7 +17,7 @@ int main()
 {
     //====================
     // HMAP TEST
-    Map *c = hmap_create(NULL, NULL, NULL, NULL, NULL, NULL);
+    Map *c = hmap_create(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
     int val1 = 1;
     int val2 = 2;
@@ -41,6 +41,8 @@ int main()
     c->change(c, &key2, &val3);
 
     Print(c);
+
+    printf("entries of %d: %d\n", val3, c->count_value(c, &val3));
 
     c->destroy(c);
 
