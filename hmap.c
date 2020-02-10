@@ -28,6 +28,8 @@ struct _HashMap {
     int  (*hash)(void* key);
     void (*free_key)(void* key);
 	void (*free_value)(void* value);
+    int (*compare_keys)(void* key1, void* key2);
+    int (*compare_values)(void* value1, void* value2);
 };
 typedef struct _HashMap HashMap;
 
@@ -88,14 +90,14 @@ Map *hmap_create(int (*hash)(void* key), int (*cmp_keys)(void* key1, void* key2)
         hmap->free_value = free_value;
 
     if (cmp_keys == NULL)
-        hmap->obj.compare_keys = CompareDefault;
+        hmap->compare_keys = CompareDefault;
     else
-        hmap->obj.compare_keys = cmp_keys;
+        hmap->compare_keys = cmp_keys;
 
     if (cmp_values == NULL)
-        hmap->obj.compare_keys = CompareDefault;
+        hmap->compare_values = CompareDefault;
     else
-        hmap->obj.compare_keys = cmp_values;
+        hmap->compare_values = cmp_values;
 
     if (print_key == NULL)
         hmap->obj.print_key = PrintDefault;
@@ -153,7 +155,7 @@ int hmap_insert(Map* obj, void* key, void* value) {
     Pair data = {key, value};
 
     for (int i = lst->head; i != 0; i = lst->next[i])
-        if (obj->compare_keys(key, lst->data[i].key) == 0) {
+        if (((HashMap*)obj)->compare_keys(key, lst->data[i].key) == 0) {
                 printf("[hmap_insert] trying to insert element with existing key. try hmap_change\n");
                 return -1;
         } 
@@ -171,7 +173,7 @@ int hmap_delete(Map* obj, void* key) {
     DLList* lst = &(((HashMap*)obj)->table[hash]);
     
     for (int i = lst->head; i != 0; i = lst->next[i])
-        if (obj->compare_keys(key, lst->data[i].key) == 0) {
+        if (((HashMap*)obj)->compare_keys(key, lst->data[i].key) == 0) {
             if (DLListDelete(lst, i) == -1)
                 return -1;
             else 
@@ -192,7 +194,7 @@ int hmap_change(Map* obj, void* key, void* newValue) {
     DLList* lst = &(((HashMap*)obj)->table[hash]);
     
     for (int i = lst->head; i != 0; i = lst->next[i])
-        if (obj->compare_keys(key, lst->data[i].key) == 0) {
+        if (((HashMap*)obj)->compare_keys(key, lst->data[i].key) == 0) {
             lst->data[i].value = newValue;
             return 0;
         }
@@ -210,7 +212,7 @@ void* hmap_get(Map* obj, void* key) {
     DLList* lst = &(((HashMap*)obj)->table[hash]);
     
     for (int i = lst->head; i != 0; i = lst->next[i])
-        if (obj->compare_keys(key, lst->data[i].key) == 0)
+        if (((HashMap*)obj)->compare_keys(key, lst->data[i].key) == 0)
             return lst->data[i].value;
 
     printf("[hmap_get] no element with such key!\n");
@@ -225,7 +227,7 @@ int hmap_count_value(Map* obj, void* value) {
         DLList* lst = &(((HashMap*)obj)->table[i]);
 
         for (int j = lst->head; j != 0; j = lst->next[j])
-            if (CompareDefault(lst->data[j].value, value) == 0)
+            if (((HashMap*)obj)->compare_values(lst->data[j].value, value) == 0)
                 count++;
     }
 
