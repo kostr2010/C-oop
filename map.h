@@ -17,3 +17,5 @@ struct _Map {
     int   (*count_value)(struct _Map* obj, void* value);
 };
 typedef struct _Map Map;
+
+//later we'll change print_key & print_value with iterators

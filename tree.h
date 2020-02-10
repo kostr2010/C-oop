@@ -12,8 +12,8 @@
 
 
 Map *tree_create(int (*tree_compare_keys)(void *key1, void *key2), 
-void (*print_pair)(void *key, void *value), void (*free_key)(void *key), 
-void (*free_value)(void *value)); //
+void (*print_key)(void *key), void (*print_value)(void *value),
+void (*free_key)(void *key), void (*free_value)(void *value)); //
 
 void tree_destroy(Map* obj); //
 
