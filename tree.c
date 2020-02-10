@@ -1,6 +1,6 @@
 // this file contains tree methods implementation
 
-/*===========*/
+/*==========*/
 /* INCLUDES */
 
 #include <stdlib.h>
@@ -13,6 +13,7 @@
 struct _Node{
 	struct _Node *left;
 	struct _Node *right;
+	struct _Node *parent;
 	void *key;
 	void *value;
 };
@@ -32,24 +33,19 @@ typedef struct _Tree Tree;
 /* ADDITIONAL FUNCTIONS */
 
 //returns node, where we can insert key
-Node *find_place_to_insert(Map *obj, Node *node, void *key){
+Node *find_place_to_insert(Map *obj, Node *n, void *key){
 	assert(obj);
-	assert(node);
+	assert(n);
 	assert(key);
 
-	int cmp_res = obj->compare_keys(node->key, key);
+	int cmp_res = obj->compare_keys(n->key, key);
 
 	if(cmp_res > 0){
-		if(node->right == NULL)
-			return node;
-		else
-			find_place_to_insert(obj, node->right, key);
+		return (n->right)? find_place_to_insert(obj, n->right, key) : n;
 	}
-	else if(cmp_res < 0){
-		if(node->left == NULL)
-			return node;
-		else 
-			find_place_to_insert(obj, node->left, key);
+
+	if(cmp_res < 0){
+		return (n->left)? find_place_to_insert(obj, n->left, key) : n;
 	}
 
 	return NULL; //already have such key
@@ -76,8 +72,8 @@ void destroy_node(Map *obj, Node *node){
 	assert(obj);
 	assert(node);
 
-	((Tree*)obj)->free_key(node->key);		// EDITED BY KOSTYA
-	((Tree*)obj)->free_value(node->value);	// EDITED BY KOSTYA
+	((Tree*)obj)->free_key(node->key);
+	((Tree*)obj)->free_value(node->value);
 	free(node);
 }
 
@@ -86,10 +82,10 @@ void destroy_subtree(Map *obj, Node *node){
 	assert(node);
 
 	if(node->right)
-		destroy_node(obj, node->right);
+		destroy_subtree(obj, node->right);
 	
 	if(node->left)
-		destroy_node(obj, node->left);
+		destroy_subtree(obj, node->left);
 		
 	destroy_node(obj, node);
 }
@@ -100,7 +96,7 @@ Node *tree_find_key(Map *obj, Node *node, void *key){
 	assert(obj);
 
 	if(node == NULL){
-		return NULL;
+		return NULL; //no such key in subtree
 	}
 	int cmp_res = obj->compare_keys(key, node->key);
 
@@ -136,7 +132,7 @@ int tree_change(Map *obj, void *key, void *new_value){
 		return 1; //no such key in dictionary
 	}
 	else{
-		((Tree*)obj)->free_value(change_node->value);	// EDITED BY KOSTYA
+		((Tree*)obj)->free_value(change_node->value);
 		change_node->value = new_value;
 		return 0;
 	}
@@ -147,20 +143,21 @@ void *tree_get(Map *obj, void *key){
 	assert(obj);
 	assert(key);
 
-	Node *node = tree_find_key(obj, ((Tree*)obj)->root, key);
+	Node *found_node = tree_find_key(obj, ((Tree*)obj)->root, key);
 
-	return (node == NULL) ? NULL : node->value;
+	return (found_node)? found_node->value : NULL;
 }
 
 void tree_destroy(Map *obj){
 	assert(obj);
 
 	Tree *tree = (Tree*)obj;
+
 	if(tree->root)
-		destroy_node(obj, tree->root);
+		destroy_subtree(obj, tree->root);
 
 	free((Tree *)obj);
-    printf("tree dead \n");
+	printf("Tree has been destroyed\n");
 }
 
 //if new_key is greater than the key in the current node
@@ -185,25 +182,69 @@ int tree_insert(Map *obj, void *key, void *value){
 	Node *node_to_insert_in = find_place_to_insert(obj, tree->root, key);
 
 	if(node_to_insert_in == NULL)
-		return 1; //no inserting have been done
+		return 1; //already have this key
 
-	else if(obj->compare_keys(key, node_to_insert_in->key) > 0){
-		node_to_insert_in->right = tree_create_node(key, value);
-		return node_to_insert_in->right ? 0 : 1;
+	int cmp_res = obj->compare_keys(key, node_to_insert_in->key);
+	Node *new_node = tree_create_node(key, value);
+
+	if(new_node == NULL){
+		return 1;
+	}
+	new_node->parent = node_to_insert_in;
+
+	if(cmp_res > 0){
+		node_to_insert_in->right = new_node;
 	}
 	else{
-		node_to_insert_in->left = tree_create_node(key, value);
-		return node_to_insert_in->left ? 0 : 1;	
+		node_to_insert_in->left = new_node;
 	}
-}
 
-int tree_delete(Map *obj, void *key){
 	return 0;
 }
 
-Map *tree_create(int (*tree_compare_keys)(void *key1, void *key2), 
-void (*tree_print_pair)(void *key, void *value), void (*free_key)(void *key), 
-void (*free_value)(void *value)){
+int tree_delete(Map *obj, void *key){
+	assert(obj);
+	assert(key);
+
+	Node *node_to_del = tree_find_key(obj, ((Tree*)obj)->root, key);
+
+	if(node_to_del == NULL)
+		return 0; //no such key
+
+	Node *parent = node_to_del->parent;
+	Node *left = node_to_del->left;
+	Node *right = node_to_del->right;
+
+	left->parent = parent;// = NULL for root;
+
+	//looking for the rightest node in subtree left
+	Node *rightest = left;
+	
+	while(rightest->right){
+		rightest = rightest->right;
+	}
+	//insert subtree right in subtree left:
+	rightest->right = right;
+	right->parent = rightest; 
+
+	//if delete root(in hasn't got parent):
+	if(node_to_del == ((Tree*)obj)->root)
+		((Tree*)obj)->root = left;
+
+	else if(parent->right == node_to_del)
+		parent->right = left;
+
+	else
+		parent->left = left;
+	
+	destroy_node(obj, node_to_del);
+
+	return 0;
+}
+
+Map *tree_create(int (*compare_keys)(void *key1, void *key2), 
+void (*print_key)(void *key), void (*print_value)(void *value), 
+void (*free_key)(void *key), void (*free_value)(void *value)){
 					
     Tree *tree = calloc(1, sizeof(Tree));
 	if(tree == NULL)
@@ -215,13 +256,18 @@ void (*free_value)(void *value)){
 	tree->obj.change = tree_change;
 	tree->obj.get = tree_get;
 
-	if(tree_compare_keys == NULL || tree_print_pair == NULL){
+	if(!compare_keys || !print_value || !print_key){
 		free(tree);
 		return NULL;
 	}
-	tree->obj.compare_keys = tree_compare_keys;
-	//tree->obj.print_pair = tree_print_pair;	// EDITED BY KOSTYA
+	tree->obj.compare_keys = compare_keys;
+	tree->obj.print_value = print_value;
+	tree->obj.print_key = print_key;
 
+	tree->free_key = (free_key)? free_key : free_key_default;
+	tree->free_value = (free_value)? free_value : free_value_default;
+
+/*
 	if(free_key == NULL)
 		tree->free_key = free_key_default;		// EDITED BY KOSTYA
 	else
@@ -232,90 +278,7 @@ void (*free_value)(void *value)){
 	else
 		tree->free_value = free_value;			// EDITED BY KOSTYA
 
+*/
     return (Map*)tree;
 }
-
-/*
-//returns a pointer to node which is a parent to node with key
-//start searching from node
-Node *find_parent(Map *obj, Node* node, void *key){
-	assert(obj);
-	assert(key);
-	assert(node);
-	
-	if(node->right && obj->compare_keys(key, node->right->key) == 0)
-		return node;
-
-	if(node->left && obj->compare_keys(key, node->left->key) == 0)
-		return node;
-
-	int cmp_res = obj->compare_keys(key, node->key);
-
-	if(cmp_res > 0)
-		return node->right ? find_parent(obj, node->right, key) : NULL;
-	
-	if(cmp_res < 0)
-		return node->left ? find_parent(obj, node->left, key) : NULL;
-
-	return NULL;
-}
-
-void delete_node(Map *obj, char side, Node *parent){
-	assert(parent);
-	assert(obj);
-	
-	//separate deleting node
-	Node *node = (side == 'r')? parent->right : parent->left; 
-	Node *n_left = node->left;
-	Node *n_right = node->right;
-
-	//free node
-	obj->free_key(node->key);
-	obj->free_value(node->value);
-	free(node);
-
-	if(side == 'r')
-		parent->right = n_left;
-	else
-		parent->left = n_left;
-
-	//insert n_right in n_left subtree
-	Node *tmp = n_left
-	while(tmp->right != NULL)
-		tmp = tmp->right;
-		
-	tmp->right = n_right;
-}
-
-int tree_delete(Map *obj, void *key){
-	assert(obj);
-	assert(key);
-
-	Tree *tree = (Tree*)obj;
-	if(tree_root == NULL)
-		return 1; //empty tree
-
-	if(obj->compare_keys(key, tree->root->key) == 0){
-		Node *n_left = tree->root->left;
-		Node *n_right = tree->root->right;
-		
-		obj->free_key(tree->root->key);
-		obj->free_value(tree->root->value);
-		free(tree->root);
-
-		tree->root = n_left;
-		Node *tmp = n_left;
-
-		while(tmp->right != NULL)
-			tmp = tmp->right;
-		
-		tmp->right = n_right;
-	}
-	else{
-		Node *parent = find_parent(obj, tree->root, key);
-		if(
-	}
-	
-}
-*/
 
