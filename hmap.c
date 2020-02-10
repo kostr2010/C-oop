@@ -174,6 +174,9 @@ int hmap_delete(Map* obj, void* key) {
     
     for (int i = lst->head; i != 0; i = lst->next[i])
         if (((HashMap*)obj)->compare_keys(key, lst->data[i].key) == 0) {
+            ((HashMap*)obj)->free_key(lst->data[i].key);
+            ((HashMap*)obj)->free_value(lst->data[i].value);
+
             if (DLListDelete(lst, i) == -1)
                 return -1;
             else 
