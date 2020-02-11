@@ -15,6 +15,7 @@ struct _Map {
     void  (*print_key)(void* key);
     void  (*print_value)(void* value);
     int   (*count_value)(struct _Map* obj, void* value);
+	int (*size)(struct _Map* obj);
 };
 typedef struct _Map Map;
 
