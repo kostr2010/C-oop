@@ -98,8 +98,15 @@ int tree_test(){
 	tree->change(tree, &key4, &val1);
 
 	printf("number of %d = (exp.4)%d \n", val1, tree->count_value(tree, &val1));
-
 	
+	printf("size = (exp.4)%d\n", tree->size(tree));
+
+	tree->delete(tree, &key2);
+	tree->delete(tree, &key2);
+	tree->delete(tree, &key3);
+	tree->delete(tree, &key4);
+	printf("size = (exp.1)%d\n", tree->size(tree));
+
 	tree->destroy(tree);
 
 	return 0;
