@@ -28,3 +28,5 @@ void* tree_get(Map* obj, void* key); //
 
 int tree_count_value(Map *obj, void *value); //
 
+int tree_size(Map *obj);
+

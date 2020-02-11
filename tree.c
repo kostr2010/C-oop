@@ -130,6 +130,16 @@ int count_value_in_subtree(Map *obj, Node *node, void *value){
 		return count_left + count_right;
 }
 
+int tree_size_subtree(Node *node){
+	
+	if(node == NULL)
+		return 0;
+	
+	return 1 + tree_size_subtree(node->right) +
+			tree_size_subtree(node->left);
+}
+
+
 void free_key_default(void *key){
 	return;
 }
@@ -231,7 +241,6 @@ int tree_delete(Map *obj, void *key){
 	Node *node_to_del = tree_find_key(obj, ((Tree*)obj)->root, key);
 
 	if(node_to_del == NULL){
-		printf("no node to del\n"); //////
 		return 0; //no such key
 	}
 
@@ -289,6 +298,12 @@ int tree_count_value(Map *obj, void *value){
 	return count_value_in_subtree(obj, ((Tree*)obj)->root, value);
 }
 
+int tree_size(Map *obj){
+	assert(obj);
+
+	return tree_size_subtree(((Tree*)obj)->root); 
+}
+
 Map *tree_create(int (*compare_keys)(void *key1, void *key2),
 int (*compare_vals)(void *val1, void *val2),
 void (*print_key)(void *key), void (*print_value)(void *value), 
@@ -304,6 +319,7 @@ void (*free_key)(void *key), void (*free_value)(void *value)){
 	tree->obj.change = tree_change;
 	tree->obj.get = tree_get;
 	tree->obj.count_value = tree_count_value;
+	tree->obj.size = tree_size;
 
 	if(!compare_keys || !compare_vals || !print_value || !print_key){
 		free(tree);
