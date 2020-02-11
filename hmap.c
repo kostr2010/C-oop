@@ -237,6 +237,19 @@ int hmap_count_value(Map* obj, void* value) {
     return count;
 }
 
+int hmap_size(Map* obj) {
+    int count = 0;
+
+    for (int i = 0; i < ((HashMap*)obj)->size; i++) {
+        DLList* lst = &(((HashMap*)obj)->table[i]);
+
+        for (int j = lst->head; j != 0; j = lst->next[j])
+            count++;
+    }
+
+    return count;
+}
+
 void Print(Map* obj) {
     assert(obj);
 

@@ -88,6 +88,15 @@ void* hmap_get(Map* obj, void* key);
 int hmap_count_value(Map* obj, void* value);
 
 /**
+ * @brief this function returns number of elements in given structure
+ * 
+ * @arg Map* obj - pointer to the object, in which we should count
+ * 
+ * @return int size - number of elements in structure
+ */
+int hmap_size(Map* obj);
+
+/**
  * @brief default function for calculating key's hash
  *
  * @arg void* key - key
