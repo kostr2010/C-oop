@@ -15,27 +15,29 @@ struct _Node{
 	struct _Node *right;
 	struct _Node *parent;
 
-	void *key;
-	void *value;
+	void *key;	 // data
+	void *value; // data
 };
 typedef struct _Node Node;
 
 struct _Tree{
     struct _Map obj;
-    Node *root;
+    Node *root;									//private data
 
-	void (*free_key)(void *key);
-	void (*free_value)(void *value);
-	int (*compare_keys)(void *key1, void *key2);
-	int (*compare_vals)(void *val1, void *val2);
+	void (*free_key)(void *key);                //private func
+	void (*free_value)(void *value);			//private func
+	int (*compare_keys)(void *key1, void *key2);//private func
+	int (*compare_vals)(void *val1, void *val2);//private func
 };
 typedef struct _Tree Tree;
-
 
 /*======================*/
 /* ADDITIONAL FUNCTIONS */
 
-//returns node, where we can insert key
+/** Recursivly finds node in subtree n where we can insert new node with key
+*
+*@return Returns a pointer to found node or NULL if key is already in the tree
+*/
 Node *find_place_to_insert(Map *obj, Node *n, void *key){
 	assert(obj);
 	assert(n);
@@ -54,8 +56,10 @@ Node *find_place_to_insert(Map *obj, Node *n, void *key){
 	return NULL; //already have such key
 }
 
-// Creates node and initialises it with key and value
-// returns a pointer to created node or NULL
+/** Creates new node and fills in key and value
+*
+*@return Returns a pointer to created node or NULL in case of error
+*/
 Node *tree_create_node(void *key, void *value){
 	assert(key);
 	assert(value);
@@ -71,6 +75,8 @@ Node *tree_create_node(void *key, void *value){
 	return new_node;
 }
 
+/** Non-recursively destroys node and data in it
+*/
 void destroy_node(Map *obj, Node *node){
 	assert(obj);
 	assert(node);
@@ -80,6 +86,8 @@ void destroy_node(Map *obj, Node *node){
 	free(node);
 }
 
+/** Recursively destroys subtree node
+*/
 void destroy_subtree(Map *obj, Node *node){
 	assert(obj);
 	assert(node);
@@ -93,17 +101,18 @@ void destroy_subtree(Map *obj, Node *node){
 	destroy_node(obj, node);
 }
 
-//returns a pointer to the node with the key
+/**Recursively finds node in subtree node with given key
+*
+*@return Returns a pointer to the node with given key or NULL if nothing is found
+*/
 Node *tree_find_key(Map *obj, Node *node, void *key){
 	assert(key);
 	assert(obj);
 
-	if(node == NULL){
-//		printf("find_key: didn't find the key!\n");
+	if(node == NULL)
 		return NULL; //no such key in subtree
-	}
+	
 	int cmp_res = ((Tree*)obj)->compare_keys(key, node->key);
-//	printf("find_key: cmp_res = %d\n", cmp_res);
 	
 	if(cmp_res == 0)
 		return node;
@@ -114,6 +123,10 @@ Node *tree_find_key(Map *obj, Node *node, void *key){
 		return tree_find_key(obj, node->left, key);
 }
 
+/** Recursively counts the number of pairs (key, value) in subtree node with given value
+*
+*@return Returns number of pairs
+*/
 int count_value_in_subtree(Map *obj, Node *node, void *value){
 	assert(obj);
 	assert(value);
@@ -130,6 +143,10 @@ int count_value_in_subtree(Map *obj, Node *node, void *value){
 		return count_left + count_right;
 }
 
+/**Recursively calculates number of nodes (number of pairs(key,val)) in subtree node
+*
+*@return Returns number of nodes
+*/
 int tree_size_subtree(Node *node){
 	
 	if(node == NULL)
@@ -138,7 +155,6 @@ int tree_size_subtree(Node *node){
 	return 1 + tree_size_subtree(node->right) +
 			tree_size_subtree(node->left);
 }
-
 
 void free_key_default(void *key){
 	return;
