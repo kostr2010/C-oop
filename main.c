@@ -37,7 +37,7 @@ void print_value(void *val){
 	printf("%d", *(int*)val);
 }
 
-
+/*
 int tree_test(){
 	Map *tree = tree_create(compare_keys, compare_vals, print_key, print_value, NULL, NULL);
 
@@ -111,6 +111,8 @@ int tree_test(){
 
 	return 0;
 }
+*/
+
 //====================
 // MAIN
 
@@ -136,9 +138,9 @@ int main()
     c->insert(c, &key2, &val2);
     c->insert(c, &key2, &val2);
 
-    //Print(c);
+    Print(c);
 
-    c->delete(c, &key3);
+	c->delete(c, &key3);
     c->change(c, &key2, &val3);
 
     Print(c);
@@ -146,9 +148,9 @@ int main()
     printf("entries of %d: %d\n", val3, c->count_value(c, &val3));
 
     c->destroy(c);
-
+	/*
 	printf("========TREE TEST=======\n\n");
 	tree_test();
-
+	*/
     return 0;
 }
