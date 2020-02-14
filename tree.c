@@ -24,8 +24,6 @@ struct _Tree{
     struct _Map obj;
     Node *root;									//private data
 
-	void (*free_key)(void *key);                //private func
-	void (*free_value)(void *value);			//private func
 	int (*compare_keys)(void *key1, void *key2);//private func
 	int (*compare_vals)(void *val1, void *val2);//private func
 };
@@ -81,8 +79,6 @@ void destroy_node(Map *obj, Node *node){
 	assert(obj);
 	assert(node);
 
-	((Tree*)obj)->free_key(node->key);
-	((Tree*)obj)->free_value(node->value);
 	free(node);
 }
 
@@ -156,14 +152,6 @@ int tree_size_subtree(Node *node){
 			tree_size_subtree(node->left);
 }
 
-void free_key_default(void *key){
-	return;
-}
-
-void free_value_default(void *value){
-	return;
-}
-
 /*========================*/
 /* METHODS IMPLEMENTATION */
 
@@ -179,7 +167,6 @@ int tree_change(Map *obj, void *key, void *new_value){
 		return 1; //no such key in dictionary
 	}
 	else{
-		((Tree*)obj)->free_value(change_node->value);
 		change_node->value = new_value;
 		return 0;
 	}
@@ -322,8 +309,7 @@ int tree_size(Map *obj){
 
 Map *tree_create(int (*compare_keys)(void *key1, void *key2),
 int (*compare_vals)(void *val1, void *val2),
-void (*print_key)(void *key), void (*print_value)(void *value), 
-void (*free_key)(void *key), void (*free_value)(void *value)){
+void (*print_key)(void *key), void (*print_value)(void *value)){
 					
     Tree *tree = calloc(1, sizeof(Tree));
 	if(tree == NULL)
@@ -346,9 +332,6 @@ void (*free_key)(void *key), void (*free_value)(void *value)){
 	tree->compare_keys = compare_keys;
 	tree->obj.print_value = print_value;
 	tree->obj.print_key = print_key;
-
-	tree->free_key = (free_key)? free_key : free_key_default;
-	tree->free_value = (free_value)? free_value : free_value_default;
 
 	printf("Tree created\n");
     return (Map*)tree;

@@ -39,7 +39,7 @@ void print_value(void *val){
 
 
 int tree_test(){
-	Map *tree = tree_create(compare_keys, compare_vals, print_key, print_value, NULL, NULL);
+	Map *tree = tree_create(compare_keys, compare_vals, print_key, print_value);
 
 	if(tree == NULL){
 		printf("tree = NULL!\n");
