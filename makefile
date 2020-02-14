@@ -2,10 +2,14 @@ CC = gcc
 CFLAGS = -I. -Wall -g
 PROG = main
 PROG_OBJ = hmap.o tree.o list.o main.o
+PROG_LIB = map.h hmap.h tree.h list.h
 
-all: $(PROG) clear
+all: echo $(PROG) clear
 
-$(PROG): map.h hmap.h  tree.h  list.h $(PROG_OBJ)
+echo:
+	@ echo sneaky echo
+
+$(PROG): $(PROG_OBJ) $(PROG_LIB)
 	$(CC) -o $@ $(PROG_OBJ)
 
 clear:
