@@ -24,7 +24,7 @@
  * 
  * @return Map* HashMap - object with set methods and default values
  */
-Map* hmap_create(int (*hash)(void* key), int (*cmp_keys)(void* key1, void* key2), int (*cmp_values)(void* value1, void* value2), int* size, void (*print_key)(void* key), void (*print_value)(void* value), void (*free_key)(void* key), void (*free_value)(void* value));
+Map* hmap_create(int (*hash)(void* key), int (*cmp_keys)(void* key1, void* key2), int (*cmp_values)(void* value1, void* value2), int* size, void (*print_key)(void* key), void (*print_value)(void* value));
 
 /**
  * @brief destroys allocated HashMap object, freeing all associated memory

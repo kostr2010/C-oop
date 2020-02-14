@@ -26,10 +26,10 @@ struct _HashMap {
     int size;
     
     int  (*hash)(void* key);
-    void (*free_key)(void* key);
-	void (*free_value)(void* value);
-    int (*compare_keys)(void* key1, void* key2);
-    int (*compare_values)(void* value1, void* value2);
+    // void (*free_key)(void* key);
+	// void (*free_value)(void* value);
+    int  (*compare_keys)(void* key1, void* key2);
+    int  (*compare_values)(void* value1, void* value2);
 };
 typedef struct _HashMap HashMap;
 
@@ -62,13 +62,7 @@ void PrintDefault(void* arg) {
     return;
 }
 
-void FreeDefault(void* arg) {
-    assert(arg);
-
-    return;
-}
-
-Map *hmap_create(int (*hash)(void* key), int (*cmp_keys)(void* key1, void* key2), int (*cmp_values)(void* value1, void* value2), int* size, void (*print_key)(void* key), void (*print_value)(void* value), void (*free_key)(void* key), void (*free_value)(void* value)) {
+Map *hmap_create(int (*hash)(void* key), int (*cmp_keys)(void* key1, void* key2), int (*cmp_values)(void* value1, void* value2), int* size, void (*print_key)(void* key), void (*print_value)(void* value)) {
     HashMap *hmap = calloc(1, sizeof(HashMap));
 
     if (hash == NULL) {
@@ -78,16 +72,6 @@ Map *hmap_create(int (*hash)(void* key), int (*cmp_keys)(void* key1, void* key2)
         hmap->hash = hash;
         hmap->size = *size;
     }
-
-    if (free_key == NULL)
-        hmap->free_key = FreeDefault;
-    else
-        hmap->free_key = free_key;
-    
-    if (free_value == NULL)
-        hmap->free_value = FreeDefault;
-    else 
-        hmap->free_value = free_value;
 
     if (cmp_keys == NULL)
         hmap->compare_keys = CompareDefault;
@@ -124,11 +108,6 @@ void hmap_destroy(Map *obj) {
 
     for (int i = 0; i < ((HashMap*)obj)->size; i++) {
         DLList* lst = &(((HashMap*)obj)->table[i]);
-
-        for (int j = lst->head; j != 0; j = lst->next[j]) {
-            ((HashMap*)obj)->free_key(lst->data[j].key);
-            ((HashMap*)obj)->free_key(lst->data[j].value);
-        }
         
         free(lst->data);
 
@@ -174,9 +153,6 @@ int hmap_delete(Map* obj, void* key) {
     
     for (int i = lst->head; i != 0; i = lst->next[i])
         if (((HashMap*)obj)->compare_keys(key, lst->data[i].key) == 0) {
-            ((HashMap*)obj)->free_key(lst->data[i].key);
-            ((HashMap*)obj)->free_value(lst->data[i].value);
-
             if (DLListDelete(lst, i) == -1)
                 return -1;
             else 
