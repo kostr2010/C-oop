@@ -100,7 +100,7 @@ int DLListInit(DLList* list, const char* name, int size) {
     #endif
 
     return OK;
-}
+} 
 
 void DLListFree(DLList* list) {
     if (list == NULL)
