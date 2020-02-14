@@ -25,9 +25,9 @@ struct _HashMap {
     List* table;    
     int size;
     
-    int  (*hash)(void* key);
-    int  (*compare_keys)(void* key1, void* key2);
-    int  (*compare_values)(void* value1, void* value2);
+    int (*hash)(void* key);
+    int (*compare_keys)(void* key1, void* key2);
+    int (*compare_values)(void* value1, void* value2);
 };
 typedef struct _HashMap HashMap;
 
@@ -52,15 +52,7 @@ int CompareDefault(void* arg1, void* arg2) {
         return 1;
 }
 
-void PrintDefault(void* arg) {
-    assert(arg);
-
-    printf("\"%d\"", *(int*)arg);
-
-    return;
-}
-
-Map *hmap_create(hash_func_t hash, cmp_keys_func_t cmp_keys, cmp_values_func_t cmp_values, int* size, print_key_func_t print_key, print_value_func_t print_value) {
+Map *hmap_create(hash_func_t hash, cmp_keys_func_t cmp_keys, cmp_values_func_t cmp_values, int* size) {
     HashMap *hmap = calloc(1, sizeof(HashMap));
 
     if (hash == NULL) {
@@ -96,17 +88,19 @@ Map *hmap_create(hash_func_t hash, cmp_keys_func_t cmp_keys, cmp_values_func_t c
 }
 
 void hmap_destroy(Map *obj) {
+    HashMap* hmap = (HashMap*)obj;
+
     if (obj == NULL)
         return;
 
-    for (int i = 0; i < ((HashMap*)obj)->size; i++) {
-        List* lst = &(((HashMap*)obj)->table[i]);
+    for (int i = 0; i < hmap->size; i++) {
+        List* lst = &(hmap->table[i]);
         
         _ListFree(lst->first);
     }
 
-    free(((HashMap*)obj)->table);
-    free((HashMap*)obj);
+    free(hmap->table);
+    free(hmap);
 
     printf("hmap freed \n");
 
@@ -118,12 +112,13 @@ int hmap_insert(Map* obj, void* key, void* value) {
     assert(key);
     assert(value);
 
-    int hash = ((HashMap*)obj)->hash(key);
-    List* lst = &(((HashMap*)obj)->table[hash]);
+    HashMap* hmap = (HashMap*)obj;
+    int hash = hmap->hash(key);
+    List* lst = &(hmap->table[hash]);
     Pair data = {key, value};
 
     for (Node* node = lst->first; node != NULL; node = node->next)
-        if (((HashMap*)obj)->compare_keys(key, node->data.key) == 0) {
+        if (hmap->compare_keys(key, node->data.key) == 0) {
                 printf("[hmap_insert] trying to insert element with existing key. try hmap_change\n");
                 return -1;
         } 
@@ -137,12 +132,13 @@ int hmap_delete(Map* obj, void* key) {
     assert(obj);
     assert(key);
 
-    int hash = ((HashMap*)obj)->hash(key);
-    List* lst = &(((HashMap*)obj)->table[hash]);
+    HashMap* hmap = (HashMap*)obj;
+    int hash = hmap->hash(key);
+    List* lst = &(hmap->table[hash]);
     
     Node* prev = NULL;
     for (Node* node = lst->first; node != NULL; node = node->next) {
-        if (((HashMap*)obj)->compare_keys(key, node->data.key) == 0)
+        if (hmap->compare_keys(key, node->data.key) == 0)
             return ListDelete(lst, prev, node);
 
         prev = node;
@@ -158,11 +154,12 @@ int hmap_change(Map* obj, void* key, void* newValue) {
     assert(key);
     assert(newValue);
 
-    int hash = ((HashMap*)obj)->hash(key);
-    List* lst = &(((HashMap*)obj)->table[hash]);
+    HashMap* hmap = (HashMap*)obj;
+    int hash = hmap->hash(key);
+    List* lst = &(hmap->table[hash]);
     
     for (Node* node = lst->first; node != NULL; node = node->next) {
-        if (((HashMap*)obj)->compare_keys(key, node->data.key) == 0) {
+        if (hmap->compare_keys(key, node->data.key) == 0) {
             node->data.value = newValue;
 
             return 0;
@@ -178,11 +175,12 @@ void* hmap_get(Map* obj, void* key) {
     assert(obj);
     assert(key);
 
-    int hash = ((HashMap*)obj)->hash(key);
-    List* lst = &(((HashMap*)obj)->table[hash]);
+    HashMap* hmap = (HashMap*)obj;
+    int hash = hmap->hash(key);
+    List* lst = &(hmap->table[hash]);
     
     for (Node* node = lst->first; node != NULL; node = node->next)
-        if (((HashMap*)obj)->compare_keys(key, node->data.key) == 0)
+        if (hmap->compare_keys(key, node->data.key) == 0)
             return node->data.value;
 
     printf("[hmap_get] no element with such key!\n");
@@ -191,13 +189,17 @@ void* hmap_get(Map* obj, void* key) {
 }
 
 int hmap_count_value(Map* obj, void* value) {
-    int count = 0;
+    assert(obj);
+    assert(value);
 
-    for (int i = 0; i < ((HashMap*)obj)->size; i++) {
-        List* lst = &(((HashMap*)obj)->table[i]);
+    int count = 0;
+    HashMap* hmap = (HashMap*)obj;
+
+    for (int i = 0; i < hmap->size; i++) {
+        List* lst = &(hmap->table[i]);
 
         for (Node* node = lst->first; node != NULL; node = node->next)
-            if (((HashMap*)obj)->compare_values(value, node->data.value) == 0)
+            if (hmap->compare_values(value, node->data.value) == 0)
                 count++;
     }
 
@@ -205,10 +207,13 @@ int hmap_count_value(Map* obj, void* value) {
 }
 
 int hmap_size(Map* obj) {
-    int count = 0;
+    assert(obj);
 
-    for (int i = 0; i < ((HashMap*)obj)->size; i++) {
-        List* lst = &(((HashMap*)obj)->table[i]);
+    int count = 0;
+    HashMap* hmap = (HashMap*)obj;
+
+    for (int i = 0; i < hmap->size; i++) {
+        List* lst = &(hmap->table[i]);
 
         for (Node* node = lst->first; node != NULL; node = node->next)
             count++;
@@ -220,17 +225,15 @@ int hmap_size(Map* obj) {
 void Print(Map* obj) {
     assert(obj);
 
-    for (int i = 0; i < ((HashMap*)obj)->size; i++) {
-        List* lst = &(((HashMap*)obj)->table[i]);
+    HashMap* hmap = (HashMap*)obj;
+
+    for (int i = 0; i < hmap->size; i++) {
+        List* lst = &(hmap->table[i]);
         printf("lst #%d: (size: %d)\n", i, lst->size);
 
         int iter = 0;
         for (Node* node = lst->first; node != NULL; node = node->next) {
-            printf("  [%d]: ", iter);
-            PrintDefault(node->data.key);
-            printf(", ");
-            PrintDefault(node->data.value);
-            printf("\n");
+            printf("  [%d]: key %d, value %d\n", iter, *(int*)(node->data.key), *(int*)(node->data.value));
 
             iter++;
         }

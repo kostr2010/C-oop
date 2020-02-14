@@ -13,8 +13,6 @@
 typedef int (*hash_func_t)(void* key);
 typedef int (*cmp_keys_func_t)(void* key1, void* key2);
 typedef int (*cmp_values_func_t)(void* value1, void* value2);
-typedef void (*print_key_func_t)(void* key);
-typedef void (*print_value_func_t)(void* value);
 
 //====================
 // METHODS DECLARATION
@@ -26,14 +24,10 @@ typedef void (*print_value_func_t)(void* value);
  * @arg int  (*cmp_keys)(void* key1, void* key2)       - pointer to the function, which defines comparation function between two keys. if NULL, default function will be assumed, interpretating keys as int*
  * @arg int  (*cmp_values)(void* value1, void* value2) - pointer to the function, which defines comparation function between two values. if NULL, default function will be assumed, interpretating values as int*
  * @arg int* size                                      - number of boxes in hash table. if hash is NULL, it will be ignored
- * @arg void (*print_key)(void* key)                   - pointer to the function, which prints key. if NULL, default function will be assumed, interpretating key as int*
- * @arg void (*print_value)(void* value)               - pointer to the function, which prints value. if NULL, default function will be assumed, interpretating value as int*
- * @arg void (*free_key)(void* key)                    - function to free the memory, pointed by the key pointer. if NULL, mo memory deallocation for key pointer will be made
- * @arg void (*free_value)(void* value)                - function to free the memory, pointed by the value pointer. if NULL, mo memory deallocation for value pointer will be made
- * 
+ *
  * @return Map* HashMap - object with set methods and default values
  */
-Map* hmap_create(hash_func_t hash, cmp_keys_func_t cmp_keys, cmp_values_func_t cmp_values, int* size, print_key_func_t print_key, print_value_func_t print_value);
+Map* hmap_create(hash_func_t hash, cmp_keys_func_t cmp_keys, cmp_values_func_t cmp_values, int* size);
 
 /**
  * @brief destroys allocated HashMap object, freeing all associated memory
@@ -123,24 +117,6 @@ int GetHashDefault(void* key);
  * @return int res - 0 if equal, 1 if arg1 > arg2, -1 if arg1 < arg2
  */
 int CompareDefault(void* arg1, void* arg2);
-
-/**
- * @brief this default function prints argument in following format: <"arg">, interpretating it as integer
- * 
- * @arg void* arg - arg
- * 
- * @return none
- */
-void PrintDefault(void* arg);
-
-/**
- * @brief default function to free memory, pointed by given pointer. treats it as the variable of int* or similar, e.g. not freing any memory
- * 
- * @arg void* arg - pointer to the variable
- * 
- * @return none
- */
-void FreeDefault(void* arg);
 
 // DEBUG FUNCTION
 void Print(Map* obj);

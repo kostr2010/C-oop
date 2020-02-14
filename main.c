@@ -120,7 +120,7 @@ int main()
 {
     //====================
     // HMAP TEST
-    Map *c = hmap_create(NULL, NULL, NULL, NULL, NULL, NULL);
+    Map *c = hmap_create(NULL, NULL, NULL, NULL);
 
     int val1 = 1;
     int val2 = 2;
