@@ -24,8 +24,8 @@ struct _Tree{
     struct _Map obj;
     Node *root;	//private data
 
-	int (*compare_keys)(void *key1, void *key2);//private func
-	int (*compare_vals)(void *val1, void *val2);//private func
+	int (*compare_keys)(const void *key1, const void *key2);//private func
+	int (*compare_vals)(const void *val1, const void *val2);//private func
 };
 typedef struct _Tree Tree;
 
@@ -36,11 +36,11 @@ typedef struct _Tree Tree;
 *
 *@return Returns a pointer to found node or NULL if key is already in the tree
 */
-Node *find_place_to_insert(const Map *obj, const Node *n, const void *key){
+Node *find_place_to_insert(const Map *obj, Node *n, const void *key){
 	assert(obj);
 	assert(n);
 	assert(key);
-
+	
 	int cmp_res = ((Tree*)obj)->compare_keys(key, n->key);
 
 	if(cmp_res > 0){
@@ -67,8 +67,8 @@ Node *tree_create_node(const void *key, const void *value){
 	if(new_node == NULL)
 		return NULL;
 
-	new_node->key = key;
-	new_node->value = value;
+	new_node->key = (void*)key;
+	new_node->value = (void*)value;
 
 	return new_node;
 }
@@ -99,7 +99,7 @@ void destroy_subtree(Node *node){
 *
 *@return Returns a pointer to the node with given key or NULL if nothing was found
 */
-Node *tree_find_key(const Map *obj, const Node *node, const void *key){
+Node *tree_find_key(const Map *obj, Node *node, const void *key){
 	assert(key);
 	assert(obj);
 
@@ -168,7 +168,7 @@ int tree_change(Map *obj, const void *key, const void *new_value){
 		return 1; //no such key in dictionary
 	}
 	else{
-		change_node->value = new_value;
+		change_node->value = (void*)new_value;
 		return 0;
 	}
 }
@@ -195,7 +195,7 @@ void tree_destroy(Map *obj){
 	Tree *tree = (Tree*)obj;
 
 	if(tree->root)
-		destroy_subtree(obj, tree->root);
+		destroy_subtree(tree->root);
 
 	free((Tree *)obj);
 
@@ -301,7 +301,7 @@ int tree_delete(Map *obj, const void *key){
 			parent->left = right;
 	}
 
-	destroy_node(obj, node_to_del);
+	destroy_node(node_to_del);
 
 	return 0;
 }
@@ -351,7 +351,7 @@ Map *tree_create(cmp_k cmp_k_func, cmp_v cmp_v_func){
 	}
 
 	tree->compare_vals = cmp_v_func;
-	tree->compare_keys = cmp_k_func
+	tree->compare_keys = cmp_k_func;
 
 	printf("Tree has been created\n");
 
