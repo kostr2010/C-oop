@@ -36,7 +36,7 @@ typedef struct _Tree Tree;
 *
 *@return Returns a pointer to found node or NULL if key is already in the tree
 */
-Node *find_place_to_insert(Map *obj, Node *n, void *key){
+Node *find_place_to_insert(const Map *obj, const Node *n, const void *key){
 	assert(obj);
 	assert(n);
 	assert(key);
@@ -58,7 +58,7 @@ Node *find_place_to_insert(Map *obj, Node *n, void *key){
 *
 *@return Returns a pointer to created node or NULL in case of error
 */
-Node *tree_create_node(void *key, void *value){
+Node *tree_create_node(const void *key, const void *value){
 	assert(key);
 	assert(value);
 
@@ -99,7 +99,7 @@ void destroy_subtree(Node *node){
 *
 *@return Returns a pointer to the node with given key or NULL if nothing was found
 */
-Node *tree_find_key(Map *obj, Node *node, void *key){
+Node *tree_find_key(const Map *obj, const Node *node, const void *key){
 	assert(key);
 	assert(obj);
 
@@ -121,7 +121,7 @@ Node *tree_find_key(Map *obj, Node *node, void *key){
 *
 *@return Returns number of pairs
 */
-int count_value_in_subtree(Map *obj, Node *node, void *value){
+int count_value_in_subtree(const Map *obj, const Node *node, const void *value){
 	assert(obj);
 	assert(value);
 	
@@ -141,7 +141,7 @@ int count_value_in_subtree(Map *obj, Node *node, void *value){
 *
 *@return Returns number of nodes
 */
-int tree_size_subtree(Node *node){
+int tree_size_subtree(const Node *node){
 	
 	if(node == NULL)
 		return 0;
@@ -157,7 +157,7 @@ int tree_size_subtree(Node *node){
 *
 *@return Returns 0 in if changed successfully or 1 if no <key> was found
 */
-int tree_change(Map *obj, void *key, void *new_value){
+int tree_change(Map *obj, const void *key, const void *new_value){
 	assert(obj);
 	assert(key);
 	assert(new_value);
@@ -177,7 +177,7 @@ int tree_change(Map *obj, void *key, void *new_value){
 *
 *@return Returns a pointer to found value or NULL if no <key> found
 */
-void *tree_get(Map *obj, void *key){
+void *tree_get(const Map *obj, const void *key){
 	assert(obj);
 	assert(key);
 
@@ -202,13 +202,6 @@ void tree_destroy(Map *obj){
 	printf("Tree has been destroyed\n");
 }
 
-//if new_key is greater than the key in the current node
-//we put it in right subtree
-//if -//- less -//-, -//- in left subtree
-
-//inserts a node with (key, value) in the tree.
-//returns 0 in success, 1 in other cases
-
 /** Inserts (<key>, <value>) in tree in order that
 * all keys in right subtree are greater than <key> and
 * all keys in left subtree are less than <key>.
@@ -216,7 +209,7 @@ void tree_destroy(Map *obj){
 *
 *@return Returns 0 if insertion is done and 1 in other ways	
 */
-int tree_insert(Map *obj, void *key, void *value){
+int tree_insert(Map *obj, const void *key, const void *value){
 	assert(obj);
 	assert(key);
 	assert(value);
@@ -256,7 +249,7 @@ int tree_insert(Map *obj, void *key, void *value){
 *
 *@return Returns 0
 */
-int tree_delete(Map *obj, void *key){
+int tree_delete(Map *obj, const void *key){
 	assert(obj);
 	assert(key);
 
@@ -317,7 +310,7 @@ int tree_delete(Map *obj, void *key){
 *
 *@return Returns number of values found
 */
-int tree_count_value(Map *obj, void *value){
+int tree_count_value(const Map *obj, const void *value){
 	assert(obj);
 	assert(value);
 
@@ -328,14 +321,14 @@ int tree_count_value(Map *obj, void *value){
 *
 *@return Returns size of the tree
 */
-int tree_size(Map *obj){
+int tree_size(const Map *obj){
 	assert(obj);
 
 	return tree_size_subtree(((Tree*)obj)->root); 
 }
 
 /** Creates tree and fills in appropriate functions
-*
+* 
 *@return Returns a pointer to created tree or NULL if nothing is created
 */
 Map *tree_create(cmp_k cmp_k_func, cmp_v cmp_v_func){
