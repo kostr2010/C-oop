@@ -25,18 +25,6 @@ int compare_vals(void *val1, void *val2){
 	return *(int*)val1 - *(int*)val2;
 }
 
-void print_key(void *key){
-	assert(key);
-
-	printf("%d", *(int*)key);
-}
-
-void print_value(void *val){
-	assert(val);
-
-	printf("%d", *(int*)val);
-}
-
 /*
 int tree_test(){
 	Map *tree = tree_create(compare_keys, compare_vals, print_key, print_value);

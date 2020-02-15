@@ -10,10 +10,10 @@
 //====================
 // METHODS DECLARATION
 
+typedef int (*cmp_k)(void *key1, void *key2);
+typedef int (*cmp_v)(void *val1, void *val2);
 
-Map *tree_create(int (*compare_keys)(void *key1, void *key2),
-int (*compare_vals)(void *val1, void *val2),
-void (*print_key)(void *key), void (*print_value)(void *value)); //
+Map *tree_create(cmp_k cmp_k_func, cmp_v cmp_v_func); //
 
 void tree_destroy(Map* obj); //
 

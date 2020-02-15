@@ -13,8 +13,6 @@ struct _Map {
     int   (*change)(struct _Map* obj, void* key, void* newValue);   // changes value of given key to the newValue
     void* (*get)(struct _Map* obj, void* key);                      // returns value of given key
     int   (*count_value)(struct _Map* obj, void* value);            // counts all elements with given value in the object
-	int   (*size)(struct _Map* obj);                                // returns number of elemnts in the object
+	int   (*size)(struct _Map* obj);                                // returns number of elements in the object
 };
 typedef struct _Map Map;
-
-//later we'll change print_key & print_value with iterators
